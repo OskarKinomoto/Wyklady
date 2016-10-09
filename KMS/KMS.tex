@@ -1,0 +1,289 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{polski}
+\usepackage[utf8]{inputenc}
+\usepackage[unicode]{hyperref}
+\usepackage{amssymb}
+\usepackage{xifthen}
+\usepackage[fleqn]{amsmath}
+\usepackage{todonotes}
+\usepackage{graphicx}
+\usepackage{fullpage}
+\usepackage{amsmath}
+\usepackage{hyperref}
+
+\newcommand*{\hham}{\hat{\mathcal{H}}}
+
+%opening
+\title{Komputerowe Metody Symulacji}
+\author{Oskar Świtalski}
+
+\begin{document}
+
+\maketitle
+
+\section{Wykład I} %2016-10-04
+\paragraph{Prowadzący} dr inż. Krzysztof Zberecki
+\paragraph{Adres e-mail prowadzącego} \href{mailto:zberecki@if.pw.edu.pl}{zberecki@if.pw.edu.pl}
+\paragraph{Strona z zadaniami} \url{http://if.pw.edu.pl/~zberecki/KMS/download.html}
+
+\subsection{Program}
+\begin{itemize}
+ \item Metody deterministyczne, dynamika 
+ \item Metody stochastyczne
+ \item Podstawy chemii kwantowej w użyciu do  wł. mikro/nano układów (fizyki jądrowej/zderzenia ciężkich jonów)
+ \item Omówienie algorytmów obliczeń z zbieżnych dziedzin
+\end{itemize}
+
+
+\subsection{Literatura}
+\begin{itemize}
+\item Podstawy symulacji komputerowych w fizyce – Hcerman
+\item Chemia kwantowa – Kołos
+\item Computential Physics – Koonin 
+\item Computential Physics – Thijsen
+\end{itemize}
+
+\subsection{Zaliczenie}
+
+\begin{itemize}
+ \item Laboratorium – 2 programy:
+ \begin{itemize}
+  \item Mechanika molekularna
+  \item Rozwiązanie układu Schrödingera od czasu
+ \end{itemize}
+ \item Kolokwium
+\end{itemize}
+
+\subsection{Metody symulacji komputerowych}
+\begin{itemize}
+ \item model $\rightarrow$ obserwable
+ \item hamiltonian
+ \item obserwable po zespole 
+ \begin{gather*}
+  \langle A \rangle = Z^{-1} \int_\Omega A(\vec{x}) f \big( \hham(\vec{x}) \big) dx \\
+  \text{gdzie} \\
+  Z = \int_\Omega = f\big(\hham(\vec{x})\big)dx \text{ – f. rozdziału / suma statystyczna}
+ \end{gather*}
+ 
+ \item obserwable po czasie
+ \begin{gather*}
+  \vec{A_t} = (t - t_o ) ^{-1} \int_{t_o}^t A(x(\tau)d\tau)
+ \end{gather*}
+
+ \item Hipoteza ergodyczna
+\end{itemize}
+
+\subsection{Metody dynamiki molekularnej}
+\paragraph{} Metody dynamiki molekularnej służą do obliczania trajektorii w przestrzeni fazowej zbioru molekuł, z których każda podlega klasycznym równaniom ruchu.
+\paragraph{} Komórka MD – komórka dynamiki molekularnej
+\begin{gather} \label{r_1}
+ \frac{du(t)}{dt} = K(u(t),t)
+\end{gather}
+
+\begin{gather*}
+ \hham =  \sum_{i=1}^N \frac{p_i^2}{2m_i} + \sum_{K_j}U(u_{ij})
+\end{gather*}
+
+\subsubsection{Efekty wymiaru (finite size effects)}
+\paragraph{} Problem skończonej wielkości obszaru. Rozwiązanie warunki brzegowe.
+
+\begin{gather*}
+ A(\vec{x}) = A(\vec{x} + \vec{n} \cdot L) \\
+ \vec{n} = (n_1, n_2, n_3) \\
+ L \text{ – liniowe wymiary układu}
+\end{gather*}
+\paragraph{} Przy obliczaniu energii całkowitej ze wzoru (\ref{r_1}) przyjmuje się tzw. konwencje najbliższego obrazu
+\begin{gather}
+ r_{ij} = \min_n \left\{ | \vec{r_i} - \vec{r_j} + \vec{n} L | \right\}
+\end{gather}
+
+cząstka oddziałuje tylko z N-1 cząstkami z komórki MD lub z jej najbliższego obszaru.
+
+
+\subsection{Schematy całkowania}
+MD jest zagadnieniem z warunkami początkowymi
+\begin{gather}
+ m \dot{r} = p_i \\
+ \dot{p_i} = \sum_{i < j} F(x_j) \label{r_2}
+\end{gather}
+
+\paragraph{} (\ref{r_2}) wymaga $\frac{N(N-1)}{2}$ obliczeń jest to najbardziej złożona część obliczeniowo.
+
+\paragraph{} Algorytm taki który działa krok po kroku. U podstaw metod numerycznych służących do rozwiązania równań różniczkowych stoi rozwinięcie w szereg Taylora. 
+
+\begin{gather}
+ u(t + h) = u(t) + \sum_{i}^{n - 1} \frac{h^i}{i!} u^{(u)}(t) + R_n 
+ \end{gather}
+ \begin{gather*}
+ h \text{ – krok dyskretyzacji} \\
+ R_n \text{ – reszta} 
+\end{gather*}
+
+Dla n = 2
+\begin{gather}
+ \frac{u}{t} = h^{-1} \left[ u ( t + h) - u (t) \right] + d(h) + o(h)
+\end{gather}
+\begin{gather}
+ \frac{u}{t} = h^{-1} \left[ u ( t) - u (t - h) \right] + d(h) + o(h)
+\end{gather}
+
+Algorytm Eulera
+\begin{gather}
+ u(t+h) = u(t) + h K(u(t), t) \\
+ \dot{u} = K(u(t),t)
+\end{gather}
+
+K - operator różniczkowy
+
+Błąd - met. num.
+
+Wybór kroku $h$ w zależności od przyjętej wielkości fluktuacji energii potencjalnej.
+
+\subsection{obliczanie wielkości termodynamicznych}
+\begin{gather*}
+E = const. \\
+T = const. \\
+NVE
+\end{gather*}
+\paragraph{} średnia po trajektorii w takim układzie
+
+\begin{gather*}
+ \vec{A} = \langle A \rangle_{\text{NVE}} = \lim_{n \to \infty} (t' - t_o)^{-1} \int_{t_o}^{t'} A\big(\vec{r}^N(t), \vec{p}^N(t), V \big) dt\\
+ \vec{E}_k = \lim_{\tau \to \infty} (t; - t_o)^{-1} \int_{t_o}^{t'} E_k(u(t))dt \\
+ \vec{U} = \lim_{\tau \to \infty} (t; - t_o)^{-1} \int_{t_o}^{t'} U(V(t))dt
+\end{gather*}
+
+Korzystając z zasady ekwipartycji energii:
+\begin{gather*}
+ \frac{mv_i^2}{2} = \frac{k_BT}{2}
+\end{gather*}
+
+\begin{gather*}
+ E_c = E_K + U
+\end{gather*}
+
+\subsection{Organizacja symulacji}
+\begin{itemize}
+ \item Inicjowanie – zadanie warunków początkowych – położenia i pędy
+ \item Doprowadzenie do równowagi
+ \item Realizacja według zadanego algorytmu
+\end{itemize}
+
+\begin{gather*}
+ H = \frac{1}{2m} \sum_{i = 1}^{N} p_i^2 + \sum_{i < j} u(r_{ij})
+\end{gather*}
+
+z równania Newtona
+
+\begin{gather*}
+ \frac{d^2 V_i(t)}{dt^2} = \frac{1}{m}\sum_{i<j}F_i(r_{ij})
+\end{gather*}
+
+\subsection{Algorytm Verleta}
+\paragraph{} Schemat rozwiązania równania Newtona jest następujący:
+
+\begin{gather}
+ \frac{d^2r_i}{dt^2} = \frac{1}{h^2} \Big[ r_i(t+h) - 2r_i(t) + r_i(t-h)\Big] = \frac{1}{m}F_i(t) \\ 
+ r_i(t+h) = 2r_i (t) - r_i(t-h) + \frac{F_i(t)h^2}{m}
+\end{gather}
+
+\begin{gather*}
+ t - h, t \to t + h \text{ - metoda 2kierunkowa}
+\end{gather*}
+
+\paragraph{} Stosując oznaczenia
+\begin{gather*}
+ t_n = nh \\
+ r_i^n = r_i(t_n) \\
+ F_i^n = F_i (t_n) \
+\end{gather*}
+
+\begin{gather} \label{r_3}
+ r_i^{n+1} = 2r_i^n - r_i^{n-1} + \frac{F_i^n h^2}{m}
+\end{gather}
+
+\begin{gather} \label{r_4}
+V_i^n = \frac{(r_i^{n+1} - r_i{n-1})}{2h}
+\end{gather}
+
+\subsection{Algorytm Verleta NVE ma postać:}
+MD z alg Verleta
+\begin{itemize}
+ \item określenie położeń $r_i^o, r_i^1$
+ \item określenie sił dla n tego kroku $F_i^n$
+ \item określenie położeń dla $n+1$ kroku czasowego zw względu (\ref{r_3})
+ \item obliczenie prędkości dla $n+1$-go kroku (\ref{r_4})
+\end{itemize}
+
+\subsection{Przykład układu monoatomowego z oddziaływaniem typu oddziaływania L-J}
+
+\begin{gather*}
+ U(r_{ij}) = 4\epsilon\left( \left(\frac{\sigma}{r_{ij}}\right)^{12} - \left(\frac{\sigma}{r_{ij}}\right)^6 \right) \\
+ F_x = 48 \left( \frac{\epsilon}{\sigma^2} \right) (x_i - x_j) \left[\left(\frac{\sigma}{r_{ij}}\right)^{14} - \frac{1}{2} \left(\frac{\sigma}{r_{ij}}\right)^{8} \right]
+\end{gather*}
+
+\subsection{}
+\begin{itemize}
+ \item układ z N at. jednakowych (argonu)
+ \item przeprowadzić symulacje MD w ukł $E_z$ = const.
+ \item wylosować pędy z rozkładu maxwella
+ \item wygenerować położenia w taki sposób aby atomy tworzyły komórkę elementarną kryształu gazu szlachetnego.
+ \item histogramy pędów
+ \item jmol - wizualizacja komórki
+ \item E kin z rozkładu maxwella
+ \item komórka elementarna(sześcian) jest w kuli at odbijają się od kuli
+ \item przeskalowanie pędów tak by komórka/kryształ spoczywała $\vec{p_i}(0) = \vec{p_i}(0) = - \frac{1}{N}\sum_{i=1}{N}\vec{p_i}(0)$
+\end{itemize}
+
+potencjały i siły
+\begin{itemize}
+ \item Oddziaływanie van Der Walesa
+\begin{gather*}
+V^P = \epsilon (\frac{R}{r_{ij}}^{12} - 2 (R/r_{ij}) ^ 6) \\
+r_{ij} = | \vec{r_i} - \vec{r_j}| \\ 
+V^s = 0 \text{, gdy } r_i < L \\
+V^s = \frac{1}{2} f ( r_i - L ) ^2 \text{, gdy } r_i \ge L
+\end{gather*}
+
+całkowity element potencjalny:
+\begin{gather*}
+V = \sum_{i=1}^{N-1}\sum_{j=0}^{i - 1} V^P(r_{ij}) + \sum_{i=1}^{N-1}V^? (r_{ij}) \\
+\vec{F_i} = \sum_{0\le j \le N} F_{i(j)}^P + F_i^?
+\end{gather*}
+
+siły:
+\begin{gather*}
+\vec{F^p_{ij}} = \frac{dV^P(r_{ij})}{d\vec{V}} = 12 \epsilon (()^{12} - {}^6) \frac{\vec{r_i} - \vec{r_j}}{r_{ij}^2} \\
+\vec{F^S} = - \frac{dV^s(x)}{d\vec{r_i}} = 0 r_i < L \\
+\vec{F^S} = - \frac{dV^s(x)}{d\vec{r_i}} = f(L-r_i)\frac{\vec{r_i}}{r_i} r_i \ge L
+\end{gather*}
+\end{itemize}
+
+\subsection{.xyz file}
+n atomów np 216
+nazwa
+n razy:
+  symbol atomu x\_1 y\_1 z\_1 np Ar 1 1 1
+
+\subsection{}
+\begin{itemize}
+ \item C/C++
+ \item double
+ \item nie używać funkcji pow - patrz fastpow
+ \item 
+\end{itemize}
+
+
+schemat numerycznych
+$H = \frac{1}{2m} \sum_{i=1}^N   |p_i^2| + V$
+równania ruchu postać:
+\begin{gather*}
+\dot{r}_i = dH/dp = p_i/m \\
+\dot{p}_i = -dH/r_i = \vec{F_i}
+\end{gather*}  
+całkowanie z krokiem czasowym $\tau$
+  t - dany krok czasowy symulacji
+  
+  $r_i$
+\end{document}
